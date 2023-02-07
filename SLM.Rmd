@@ -1,0 +1,192 @@
+---
+title: "Simple/multiple Linear Regression and Extra Sum of Squares"
+output:
+  word_document: default
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+## QUE-
+Table 1 
+Age Height DBP SBP Volume 
+X1 X2 X3 X4 Y 
+22 175 60 122 3.1
+19 152 70 102 3.4
+23 165 82 118 3
+31 162 90 108 3.2
+21 193 68 120 4.9
+41 137 76 104 2.4
+27 182 76 120 4.5
+26 162 62 116 3.1
+18 172 74 118 4.4
+34 160 76 102 2.9
+31 172 70 112 4.2
+28 160 80 122 3
+24 163 62 118 3
+20 185 78 124 4.7
+21 190 76 120 4.8
+19 168 68 102 4.1
+35 137 60 106 2.3
+ As part of a study investigating the general health of college students, information was collected
+from 17 college students. The corresponding data is given in Table 1. It includes age, height,
+diastolic blood pressure (DBP), systolic blood pressure (SBP) and the volume of air exhaled after
+one deep breath.
+(a) Observe the relation among variables through the multiple-scatter plot.
+(b) Fit a MLRM to the above data to regress volume of air on other variables recorded.
+i. Test for significance of regression and draw the conclusion. Obtain R
+2
+for the model.
+Calculate fitted values, error vector and residuals.
+ii. Obtain the normal probability plot of residuals for the fitted model.
+iii. Obtain the variance covariance matrix of the estimated parameters.
+iv. Test on individual regression coefficients and draw the conclusions.
+v. Obtain 95% confidence interval on regression coefficients.
+vi. Obtain 95% confidence interval on mean response and 95% prediction interval for a new
+observation on volume(Y) when x1 = 21,x2 = 165,x3 = 80,x4 = 115.
+vii. What is the contribution of height and SBP to the model given that all other regressors
+are included?
+(c) Split the regression sum of squares in 3 components of extra sum of squares as
+SSR (X4), SSR (X1/X4) and SSR(X3,X2/X1,X4).
+
+```{r}
+Volume=c(3.1,3.4,3,3.2,4.9,2.4,4.5,3.1,4.4,2.9,4.2,3,3,4.7,4.8,4.1,2.3);
+Age=c(22,19,23,31,21,41,27,26,18,34,31,28,24,20,21,19,35);
+Height=c(175,152,165,162,193,137,182,162,172,160,172,160,163,185,190,168,137);
+DBP=c(60,70,82,90,68,76,76,62,74,76,70,80,62,78,76,68,60);
+SBP=c(122,102,118,108,120,104,120,116,118,102,112,122,118,124,120,102,106);
+data=data.frame(Volume,Age,Height,DBP,SBP)
+data
+plot(data)
+Model_1=lm(Volume~Age+Height+DBP+SBP)  #FM
+Model_1
+summary(Model_1)
+anova(Model_1)
+#To test is DBP and SBP contributes significantly to the model
+#H_0: beta_3=beta_4=0
+Model_2=lm(Volume~Age+Height)
+Model_2
+summary(Model_2)
+anova(Model_2)
+SS_H=2.5207-1.9812
+F_0=SS_H/2/0.1651
+qf(0.05,2,12,lower.tail=F)
+
+anova(Model_1,Model_2)
+
+#To test is Age and Height contributes significantly to the model
+#H_0: beta_1=beta_2=0
+Model_3=lm(Volume~DBP+SBP)
+Model_3
+summary(Model_3)
+anova(Model_3)
+
+#----(b)----
+
+#----95% CI for reg. coeff.
+confint(Model_1,level=0.95)
+
+#----95% CI for mean response
+predict.lm(Model_1,interval="confidence")
+
+#----95% CI for mean response when x1=24,x2=164,x3=175,x4=115----
+predict.lm(Model_1,data.frame(Age=24,Height=164,DBP=75,SBP=115),interval="confidence")
+
+#----Future prediction for mean response when x1=24,x2=164,x3=175,x4=115----
+predict.lm(Model_1,data.frame(Age=24,Height=164,DBP=75,SBP=115),interval="prediction")
+
+model.matrix(Model_1) #for obtaining design matrix
+
+# To check normality assumptions
+hist(Model_1$residuals) 
+qqnorm(Model_1$residuals)
+ks.test(Model_1$residuals,"pnorm")
+shapiro.test(Model_1$residuals)
+#library(nortest)
+#ad.test(Model_1$residuals)
+#par(mfrow=c(2,2))
+#plot(Model_1)
+#library(lmtest)
+#bptest(Model_1)
+
+
+```
+## QUE-
+Viscosity  Temp 0C  Catalyst Feed rate lb/hr
+ Y X1 X2
+2256 80 8
+2340 93 9
+2426 100 10
+2293 82 12
+2330 90 11
+2368 99 8
+2250 81 8
+2409 96 10
+2364 94 12
+2379 93 11
+2440 97 13
+2364 95 11
+2404 100 8
+2317 85 12
+2309 86 9
+2328 87 12
+16 observations on the viscosity of a polymer(y)
+and two-process variables reaction temperature(X1) and catalyst feed rate (X2) are recorded and given.
+(a) Fit a multiple regression model to the above data. Estimate the variance-covariance matrix of regression parameters.
+(b) Test for significance of regression. Draw appropriate conclusions.
+(c) Obtain the residual vector, variance-covariance matrix of residuals and have the normal prob.ability plot of residuals.
+(d) Test the significance of addition of process variable temperature given that the feed rate vari.able is already there in the regression model i.e. split the regression sum of squares in two
+components of extra sum of squares as SSR (X2) and SSR (X1/X2)
+(e) Check whether you need both the regressor variables in the model?
+(f ) Split the regression sum of squares in two components of extra sum of squares as
+SSR (X1) and SSR (X2/X1)
+
+```{r}
+X1=c(80,93,100,82,90,99,81,96,94,93,97,95,100,85,86,87)
+l=length(X1);l
+X2=c(8,9,10,12,11,8,8,10,12,11,13,11,8,12,9,12)
+l1=length(X2);l1
+Y=c(2256,2340,2426,2293,2330,2368,2250,2409,2364,2379,2440,2364,2404,2317,2309,2328)
+l2=length(Y);l2
+df=data.frame(Y,X1,X2);df
+plot(df)
+model=lm(Y~X1+X2)
+model
+summary(model)
+anova(model)
+
+model1=lm(Y~X1)
+model1
+summary(model1)
+anova(model1)
+
+model2=lm(Y~X2)
+model2
+summary(model2)
+anova(model2)
+
+anova(model,model1)
+anova(model,model2)
+
+#----95% CI for reg. coeff.
+confint(model,level=0.95)
+
+#----95% CI for mean response
+predict.lm(model,interval="confidence")
+
+model.matrix(model) #for obtaining design matrix
+
+# To check normality assumptions
+hist(model$residuals) 
+qqnorm(model$residuals)
+ks.test(model$residuals,"pnorm")
+shapiro.test(model$residuals)
+#library(nortest)
+#ad.test(Model_1$residuals)
+#par(mfrow=c(2,2))
+#plot(Model_1)
+#library(lmtest)
+#bptest(Model_1)
+
+```
+ 
