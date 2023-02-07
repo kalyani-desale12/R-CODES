@@ -1,0 +1,123 @@
+---
+title: "Polynomial Regression"
+output: word_document
+---
+
+## QUE-
+ Table 3          Tensile
+Hardwood          Strength
+Conc. (xi) in      (yi) in psi
+%
+
+1 6.3
+1.5 11.1
+2 20
+3 24
+4 26.1
+4.5 30
+5 33.8
+5.5 34
+6 38.1
+6.5 39.9
+7 42
+8 46.1
+9 53.1
+10 52
+11 52.5
+12 48
+13 42.8
+14 27.8
+15 21.9
+given Table  presents the data concerning the strength of Kraft paper and the % of hardwood in the
+batch of pulp from which the paper was produced. Show that the quadratic model appears to
+provide a good fit to the relationship between tensile strength and hardwood concentration.
+
+
+```{r}
+x=c(1,1.5,2,3,4,4.5,5,5.5,6,6.5,7,8,9,10,11,12,13,14,15)
+y=c(6.3,11.1,20,24,26.1,30,33.8,34,38.1,39.9,42,46.1,53.1,
+    52,52.5,48,42.8,27.8,21.9)
+plot(x,y)
+Model_1=lm(y~x+I(x^2))
+summary(Model_1)
+# centering the data
+x_1=x-mean(x)
+x_2=(x-mean(x))^2
+Model_2=lm(y~x_1+I(x_2))
+summary(Model_2)
+#library(car)
+#vif(Model_1)
+#vif(Model_2)
+```
+
+## QUE-
+Fit the regression model as specified below for the data given in Table 2
+y = β0 +β1x1 +β2x2 +β11x2^2+β22x2^2+β12x1x2
+(a) Compute t-statistic for each model parameter and conclude on the significance of corresponding regression parameter.
+(b) Use extra sum of squares method to evaluate the contribution of all the quadratic terms x1^2,x2^2
+and x1x2 in regression sum of squares for the regression model fitted in (a). Also test its significance.
+(c) Plot the residuals versus fitted values. Also have the Box plot of residuals to check the existence of any of the outlying observations.
+26 1 1 
+24 1 1
+175 1.5 4 
+160 1.5 4 
+163 1.5 4 
+55 0.5 2 
+62 1.5 5 
+100 0.5 3 
+26 1 1.5 
+30 0.5 1.5 
+70 1 2.5 
+71 0.5 2.5
+
+
+```{r}
+y=c(26,24,175,160,163,55,62,100,26,30,70,71)
+x1=c(1,1,1.5,1.5,1.5,0.5,1.5,0.5,1,0.5,1,0.5)
+x2=c(1,1,4,4,4,2,5,3,1.5,1.5,2.5,2.5)
+data=data.frame(y,x1,x2)
+data
+plot(data)
+fit=lm(y~x1+x2+I(x1^2)+I(x2^2)+I(x1*x2))
+fit  
+#   a)
+summary(fit)
+#  b) 
+# FM
+fit1=lm(y~x1+x2+I(x1^2)+I(x2^2)+I(x1*x2))
+fit2=lm(y~x1+x2)  
+anova(fit1,fit2)
+qf(0.05,3,6,lower.tail = F)
+# manually
+anova(fit1)
+anova(fit2)
+SSRes_FM=655.8  
+SSRes_RM=14472.5 
+SSRes_RM
+SSHo=SSRes_RM-SSRes_FM
+SSHo
+MSRes=10.45499^2
+F_o=(SSHo/3)/MSRes
+F_o
+
+# c)
+# To check constant variance assumption
+par(mfrow=c(1,2))
+plot(fit1$fitted.values,fit1$residuals)
+
+#library(lmtest)
+#bptest(fit1)
+# To detect outliers
+boxplot(fit1$residuals,outline=T)
+r=rstudent(fit1)
+r
+r[abs(r)>2]
+boxplot(r,outline=T)
+# Test for normality
+#shapiro.test(r)
+#library(nortest)
+#ad.test(r)
+```
+
+
+

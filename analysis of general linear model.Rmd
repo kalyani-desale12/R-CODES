@@ -1,0 +1,80 @@
+---
+title: "Analysis of general linear model"
+output:
+  word_document: default
+---
+## QUE-
+Consider the following model.
+yi = θi +θ5 +εi , i = 1, 2, 3
+y6 = θ3 +θ7 +ε6
+y4 = θ4 +θ6 +ε4
+y7 = θ2 +θ8 +ε7
+y5 = θ1 +θ7 +ε5
+y8 = θ4 +θ8 +ε8
+(a) Write the model in Gauss-Markoff setup and find rank of error space and estimation space.
+(b) Check the estimability of the following parametric functions.i)θ2 −θ4ii) θ1 +θ2 +θ3 +3θ5 
+iii)θ1 −θ2 iv) θ3 +2θ5 −θ1 −2θ8
+(c) If Y = (60.2 74.39 77.88 94.75 81.47 99.34 111.86 127.68)
+obtain two different solutions to
+normal equations and verify that the BLUE of an estimable parametric function is unique
+even though two different solutions to normal equations are used.
+(d) Obtain an estimate of error variance, BLUE of Xβ and variance-covariance of the BLUE of
+Xβ
+
+
+```{r}
+x1=c(1,0,0,0,1,0,0,0)
+x2=c(0,1,0,0,1,0,0,0)
+x3=c(0,0,1,0,1,0,0,0)
+x4=c(0,0,0,1,0,1,0,0)
+x5=c(0,0,0,1,0,0,1,0)
+x6=c(0,0,1,0,0,0,1,0)
+x7=c(0,1,0,0,0,0,0,1)
+x8=c(0,0,0,1,0,0,0,1)
+X=matrix(c(x1,x2,x3,x4,x5,x6,x7,x8),nrow=8,ncol=8,byrow=T)
+X=rbind(x1,x2,x3,x4,x5,x6,x7,x8)
+r=qr(X)$rank
+r   #Rank of estimation space
+n=8
+n-r #Rank of error space
+
+```
+## To Check Estimability
+```{r}
+S=t(X)%*%X
+r=qr(S)$rank
+library(MASS)
+G=ginv(S)
+H=G%*%S
+#To check estimability of theta2-theta4
+l1=matrix(c(0,1,0,-1,0,0,0,0),8,1)
+t(l1)
+zapsmall(t(l1)%*%H)
+#To check estimability of theta1+theta2
+l2=matrix(c(1,1,0,0,0,0,0,0),8,1)
+t(l2)
+zapsmall(t(l2)%*%H)
+```
+
+## To Find Two Different Solutins To Normal Equations
+```{r}
+Y=matrix(c(60.2,74.39,77.88,94.75,81.47,99.34,111.86,127.68))
+beta_hat=G%*%t(X)%*%Y
+z=matrix(c(0,1,0,0.5,0,1,0,4),8,1)
+beta_tilda=beta_hat+(diag(8)-H)%*%z
+
+t(l1)%*%beta_hat
+t(l1)%*%beta_tilda
+
+```
+
+## To Estimate Error Variance
+```{r}
+Y_hat=X%*%beta_hat
+cbind(Y,Y_hat)
+e=Y-Y_hat;e
+SSE=t(e)%*%e;SSE
+sigma2_hat=SSE/(n-r);sigma2_hat
+
+```
+
