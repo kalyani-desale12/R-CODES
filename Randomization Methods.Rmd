@@ -1,0 +1,89 @@
+---
+title: "Randomization methods"
+author: "Desale Kalyani Bhausaheb"
+output: word_document
+---
+
+## Ranomization methods
+```{r}
+# Complete randomization 
+#T-test drug,P-placebo,A-active drug,N-no treatment
+
+x=c("T","P","A","N")
+P=c(0.2,0.4,0.3,0.1)
+drug=sample(x,100,replace=T,prob=P)
+df=data.frame('subject'=seq(1,100,1),drug)
+tab=table(drug)
+tab
+# In complete randomization chance of treatment imbalance 
+```
+
+#Permuted block randomization
+```{r}
+n=30
+blocks=3
+bsize=n/blocks
+drug=c(rep('T',bsize/2),rep('R',bsize/2))
+t1=sample(drug,replace = F)
+t2=sample(drug,replace = F)
+t3=sample(drug,replace = F)
+t=c(t1,t2,t3)
+d2=data.frame('Patient'=c(1:n),'Treat'=t)
+d3=table(t)
+d4=as.data.frame(d3)
+
+
+```
+## Treatment adaptive randomization
+```{r}
+tre=rep(0,10)
+drug=c('T','R')
+p=0.5;s=0.02;
+tre[1]=sample(drug,1,prob=c(p,1-p))
+for(a in 2:10){
+p=ifelse('T'==tre[a-1],p-s,p+s);
+tre[a]=sample(drug,1,prob=c(p,1-p))
+}
+sub=1:10;
+d=data.frame(Subject=sub,Drug=tre)
+d
+```
+##  Responce adaptive randomization
+
+```{r}
+tre=rep(0,10);res=rep(0,10);
+drug=c('T','R')
+p=0.5;s=0.02;q=0.6;
+tre[1]=rbinom(1,1,p);
+res[1]=rbinom(1,1,q);
+for(i in 2:10){
+  p=ifelse(tre[i-1]==res[i-1], p+s, p-s)
+  tre[i]=rbinom(1,1,p)
+  res[i]=rbinom(1,1,q)
+}
+sub=1:10;
+d=data.frame(Subject=sub,Drug=drug[tre+1]);d
+```
+##  Covariate adaptive randomization
+```{r}
+sub=c(1:20)
+gender=c('M','M','F','M','F','F','F','M','M','F','F','M','M','M','F','M','F','M','M','M')
+smoke=c('No','Yes','Yes','No','No','Yes','No','No','No','Yes','Yes','Yes','No','Yes','No','Yes','No','Yes','Yes','No')
+FS=sub[gender=='F'& smoke=='Yes']    # Female smoker 
+nFS=length(FS)
+Y1=sample(c(rep(c('T','R'),nFS/2)),replace=F)
+FN=sub[gender=='F'& smoke=='No']   # Female non smoker
+nFN=length(FN)
+Y2=sample(c(rep(c('T','R'),nFN/2)),replace=F)
+MS=sub[gender=='M'& smoke=='Yes']    # male smoker
+nMS=length(MS)
+Y3=sample(c(rep(c('T','R'),nMS/2)),replace=F)
+MN=sub[gender=='M'& smoke=='No'];
+nMN=length(MN)    # male non smoker
+Y4=sample(c(rep(c('T','R'),nMN/2)),replace=F)
+da=data.frame(subject=c(FS,FN,MS,MN),drug=c(Y1,Y2,Y3,Y4))
+da
+```
+
+
+
